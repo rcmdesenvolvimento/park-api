@@ -117,4 +117,46 @@ public class UsuarioITTest {
         Assertions.assertThat(responseBody.getStatus()).isEqualTo(422);
     }
 
+    @Test
+    public void createUsuario_ComUserNAmenRepetido_RetornaErrorMessageComStatus409() {
+        ErrorMessage responseBody = webTestClient
+                .post()
+                .uri("/api/v1/usuarios")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new UsuarioCreateDto("ana@gmail.com", "123456"))
+                .exchange()
+                .expectStatus().isEqualTo(409)
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+        Assertions.assertThat(responseBody).isNotNull();
+        Assertions.assertThat(responseBody.getStatus()).isEqualTo(409);
+    }
+
+    @Test
+    public void buscarUsuario_ComIdExistente_RetornaUsuarioCriadoComStatus200() {
+        UsuarioResponseDto usuarioResponseDto = webTestClient
+                .get()
+                .uri("/api/v1/usuarios/100")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(UsuarioResponseDto.class)
+                .returnResult().getResponseBody();
+        Assertions.assertThat(usuarioResponseDto).isNotNull();
+        Assertions.assertThat(usuarioResponseDto.getId()).isEqualTo(100);
+        Assertions.assertThat(usuarioResponseDto.getUserName()).isEqualTo("ana@gmail.com");
+        Assertions.assertThat(usuarioResponseDto.getRole()).isEqualTo("ADMIN");
+    }
+
+    @Test
+    public void buscarUsuario_ComIdInexistente_RetornaErrorMessageComStatus404() {
+        ErrorMessage usuarioResponseDto = webTestClient
+                .get()
+                .uri("/api/v1/usuarios/1000")
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+        Assertions.assertThat(usuarioResponseDto).isNotNull();
+        Assertions.assertThat(usuarioResponseDto.getStatus()).isEqualTo(404);
+    }
 }
