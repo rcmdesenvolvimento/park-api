@@ -10,7 +10,7 @@
   git add .
   git commit -m "texto"
   git branch -M main
-  git push ou git push -f origin main
+  git push -u ou -f origin main
 
   # Vasco da Gama
 

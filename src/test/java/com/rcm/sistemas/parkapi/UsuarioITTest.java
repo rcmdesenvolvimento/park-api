@@ -5,6 +5,7 @@ package com.rcm.sistemas.parkapi;
 
 import com.rcm.sistemas.parkapi.web.dto.UsuarioCreateDto;
 import com.rcm.sistemas.parkapi.web.dto.UsuarioResponseDto;
+import com.rcm.sistemas.parkapi.web.dto.UsuarioSenhaDto;
 import com.rcm.sistemas.parkapi.web.exception.ErrorMessage;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -158,5 +159,96 @@ public class UsuarioITTest {
                 .returnResult().getResponseBody();
         Assertions.assertThat(usuarioResponseDto).isNotNull();
         Assertions.assertThat(usuarioResponseDto.getStatus()).isEqualTo(404);
+    }
+
+    @Test
+    public void editarSenha_ComDadosValidos_RetornarComStatus204() {
+        webTestClient
+                .patch()
+                .uri("/api/v1/usuarios/100")
+                .bodyValue(new UsuarioSenhaDto("321654", "vascao", "vascao"))
+                .exchange()
+                .expectStatus().isNoContent();
+    }
+
+    @Test
+    public void editarSenha_ComIdInexistente_RetornaErrorMessageComStatus404() {
+        ErrorMessage usuarioResponseDto = webTestClient
+                .patch()
+                .uri("/api/v1/usuarios/0")
+                .bodyValue(new UsuarioSenhaDto("321654", "vascao", "vascao"))
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+        Assertions.assertThat(usuarioResponseDto).isNotNull();
+        Assertions.assertThat(usuarioResponseDto.getStatus()).isEqualTo(404);
+    }
+
+    @Test
+    public void editarSenha_ComCamposInvalidos_RetornaErrorMessageComStatus422() {
+        ErrorMessage usuarioResponseDto = webTestClient
+                .patch()
+                .uri("/api/v1/usuarios/100")
+                .bodyValue(new UsuarioSenhaDto("", "", ""))
+                .exchange()
+                .expectStatus().isEqualTo(422)
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        Assertions.assertThat(usuarioResponseDto).isNotNull();
+        Assertions.assertThat(usuarioResponseDto.getStatus()).isEqualTo(422);
+
+        usuarioResponseDto = webTestClient
+                .patch()
+                .uri("/api/v1/usuarios/100")
+                .bodyValue(new UsuarioSenhaDto("123", "1234", "1234"))
+                .exchange()
+                .expectStatus().isEqualTo(422)
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        Assertions.assertThat(usuarioResponseDto).isNotNull();
+        Assertions.assertThat(usuarioResponseDto.getStatus()).isEqualTo(422);
+
+        usuarioResponseDto = webTestClient
+                .patch()
+                .uri("/api/v1/usuarios/100")
+                .bodyValue(new UsuarioSenhaDto("123", "12340000", "12340000"))
+                .exchange()
+                .expectStatus().isEqualTo(422)
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        Assertions.assertThat(usuarioResponseDto).isNotNull();
+        Assertions.assertThat(usuarioResponseDto.getStatus()).isEqualTo(422);
+    }
+
+    @Test
+    public void editarSenha_ComSenhasInvalidas_RetornaErrorMessageComStatus404() {
+        ErrorMessage responseBody = webTestClient
+                .patch()
+                .uri("/api/v1/usuarios/100")
+                .bodyValue(new UsuarioSenhaDto("321654", "123456", "000000"))
+                .exchange()
+                .expectStatus().isEqualTo(404)
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        Assertions.assertThat(responseBody).isNotNull();
+        Assertions.assertThat(responseBody.getStatus()).isEqualTo(404);
+
+        responseBody = webTestClient
+                .patch()
+                .uri("/api/v1/usuarios/100")
+                .bodyValue(new UsuarioSenhaDto("000000", "123456", "123456"))
+                .exchange()
+                .expectStatus().isEqualTo(404)
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        Assertions.assertThat(responseBody).isNotNull();
+        Assertions.assertThat(responseBody.getStatus()).isEqualTo(404);
+
     }
 }
