@@ -27,8 +27,6 @@ import java.util.List;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
-
-
     @Operation(summary = "Recuparar todos os usuários", description = "Recurso para recuparar todos os usuários.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Recurso recuperado com sucesso",
